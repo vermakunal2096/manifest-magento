@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: novagas
+spec:
+  type: LoadBalancer
+  selector:
+    app: novagas
+  ports:
+      # By default and for convenience, the `targetPort` is set to the same value as the `port` field.
+    - port: 80
+      targetPort: 8080
+      # Optional field
+      # By default and for convenience, the Kubernetes control plane will allocate a port from a range (default: 30000-32767)
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: novagas
+  labels:
+    app: novagas
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: novagas
+  serviceName: "novagas"
+  template:
+    metadata:
+      labels:
+        app: novagas
+    spec:
+      containers:
+      - name: novagas
+        image: kunal1996/updatednova:l1
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: novagas
+          mountPath: /mnt
+      volumes:
+      - name: novagas
+        persistentVolumeClaim:
+          claimName: nova-gas
